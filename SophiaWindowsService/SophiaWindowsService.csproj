@@ -57,7 +57,7 @@
     <Compile Include="Application\Extensions\ConfigExtensions.cs" />
     <Compile Include="Application\Requests\TokenRequest.cs" />
     <Compile Include="Application\Responses\AuditoriaResponse.cs" />
-    <Compile Include="Application\Responses\TokenRequest.cs" />
+    <Compile Include="Application\Responses\TokenResponse.cs" />
     <Compile Include="Application\Validators\ParametricaValidator.cs" />
     <Compile Include="Domain\Values\AuditoriaStatus.cs" />
     <Compile Include="Domain\Values\TipoRda.cs" />
@@ -73,7 +73,8 @@
     </Compile>
     <Compile Include="Application\Abstractions\IHttpRequestService.cs" />
     <Compile Include="Infrastructure\Http\HttpRequestService.cs" />
-    <Compile Include="Infrastructure\Jobs\ActualizarAuditoriaJob.cs" />
+    <Compile Include="Infrastructure\Jobs\AuditoriaUpdateJob.cs" />
+    <Compile Include="Infrastructure\Jobs\AuditoriaInsertJob.cs" />
     <Compile Include="Infrastructure\Jobs\ParametricaJob.cs" />
     <Compile Include="Infrastructure\Jobs\AuditoriaJob.cs" />
     <Compile Include="Domain\Models\AuditoriaResult.cs" />

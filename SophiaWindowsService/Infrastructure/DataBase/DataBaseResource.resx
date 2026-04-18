@@ -126,4 +126,7 @@
   <data name="SpActualizaEstadoAuditoria" xml:space="preserve">
     <value>[dbo].[SP_ACTUALIZA_ESTADO_AUDITORIAENVIORES1888]</value>
   </data>
+  <data name="SpInsertarAuditoria" xml:space="preserve">
+    <value>[dbo].[SP_INSERTAR_AUDITORIAENVIORES1888]</value>
+  </data>
 </root>

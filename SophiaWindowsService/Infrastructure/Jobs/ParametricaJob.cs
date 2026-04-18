@@ -34,7 +34,7 @@ namespace SophiaWindowsService.Infrastructure.Jobs
         {
             Parameters = new Dictionary<string, object>
             {
-                {"@cod_pre_sgs", ""},{"@cod_sucur",""}
+                {"@cod_pre_sgs", ""},{"@cod_sucur", ""}
             };
         }
 

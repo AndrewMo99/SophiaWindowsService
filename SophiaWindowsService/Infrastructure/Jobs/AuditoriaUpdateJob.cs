@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace SophiaWindowsService.Infrastructure.Jobs
 {
-    public class ActualizarAuditoriaJob : BaseJob<bool>
+    public class AuditoriaUpdateJob : BaseJob<bool>
     {
-        public ActualizarAuditoriaJob(string connectionName) : base(new AppDbContext(connectionName))
+        public AuditoriaUpdateJob(string connectionName) : base(new AppDbContext(connectionName))
         { }
 
         protected override string GetSpName() => DataBaseResource.SpActualizaEstadoAuditoria;
@@ -25,7 +25,7 @@ namespace SophiaWindowsService.Infrastructure.Jobs
                 { "@mensaje_respuesta", parameters[2] },
                 { "@reintentos", parameters[3] },
                 { "@bundleRda", parameters[4] },
-                { "", new SqlParameter("@lError", SqlDbType.Int) {Direction = ParameterDirection.Output} }
+                { "@lError", new SqlParameter("@lError", SqlDbType.Int) {Direction = ParameterDirection.Output} }
             };
         }
 

@@ -86,5 +86,14 @@ namespace SophiaWindowsService.Infrastructure.DataBase {
                 return ResourceManager.GetString("SpConsultarParametros", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [dbo].[SP_INSERTAR_AUDITORIAENVIORES1888].
+        /// </summary>
+        internal static string SpInsertarAuditoria {
+            get {
+                return ResourceManager.GetString("SpInsertarAuditoria", resourceCulture);
+            }
+        }
     }
 }

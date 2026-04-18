@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SophiaWindowsService.Application.Abstractions;
 using SophiaWindowsService.Application.Extensions;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SophiaWindowsService.Application.Abstractions;
 
 namespace SophiaWindowsService.Infrastructure.Http
 {

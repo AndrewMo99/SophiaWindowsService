@@ -6,5 +6,6 @@
         public const string Urgencias = "urgencias";
         public const string Hospitalizacion = "hospitalizacion";
         public const string Ambulatorio = "ambulatorio";
+        public const string Token = "token";
     }
 }

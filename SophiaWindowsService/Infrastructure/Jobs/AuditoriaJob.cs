@@ -11,13 +11,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SophiaWindowsService.Infrastructure.Jobs
 {
     public class AuditoriaJob : BaseJob<AuditoriaResult>
     {
-        private readonly IAppConfig _appConfig;
+        private readonly ParametricaResult _parametrica;
         private readonly IHttpRequestService _httpRequestService;
 
         public AuditoriaJob(
@@ -25,7 +26,7 @@ namespace SophiaWindowsService.Infrastructure.Jobs
             IAppConfig appConfig,
             IHttpRequestService httpRequestService) : base(dbContext)
         {
-            _appConfig = appConfig;
+            _parametrica = appConfig.ParametricaResult;
             _httpRequestService = httpRequestService;
         }
 
@@ -59,38 +60,59 @@ namespace SophiaWindowsService.Infrastructure.Jobs
 
         protected override async Task ProcessResult(List<AuditoriaResult> result)
         {
+            var tokenCache = new Dictionary<string, string>();
+
             foreach (var item in result)
             {
+                var isErrorToken = true;
                 try
                 {
-                    var token = await _httpRequestService.SendAsync<TokenRequest, TokenResponse>(
-                        HttpMethod.Post,
-                        _appConfig.ParametricaResult.ObtenerTokenJWTRes1888,
-                        new TokenRequest
-                        {
-                            client_id = item.ClientId,
-                            client_secret = item.SecretId
-                        }
-                    );
+                    var tokenKey = $"{item.ClientId}#{item.SecretId}#{item.Localizacion}";
+                    string accessToken;
+
+                    if (tokenCache.TryGetValue(tokenKey, out var value))
+                    {
+                        accessToken = value;
+                    }
+                    else
+                    {
+                        var token = await _httpRequestService.SendAsync<TokenRequest, TokenResponse>(
+                            HttpMethod.Post,
+                            _parametrica.ObtenerTokenJWTRes1888,
+                            new TokenRequest
+                            {
+                                client_id = item.ClientId,
+                                client_secret = item.SecretId
+                            }
+                        );
+
+                        accessToken = token.Data.Access_token;
+                        tokenCache.Add(tokenKey, accessToken);
+                    }
+
+                    isErrorToken = string.IsNullOrWhiteSpace(accessToken);
+
+                    if (isErrorToken)
+                        throw new InvalidOperationException("The token could not be obtained");
 
                     var url = string.Empty;
 
                     switch (item.TipoRda)
                     {
                         case RdaType.Paciente:
-                            url = _appConfig.ParametricaResult.CrearRDAPacienteRes1888;
+                            url = _parametrica.CrearRDAPacienteRes1888;
                             break;
 
                         case RdaType.Urgencias:
-                            url = _appConfig.ParametricaResult.CrearRDAUrgenciasRes1888;
+                            url = _parametrica.CrearRDAUrgenciasRes1888;
                             break;
 
                         case RdaType.Hospitalizacion:
-                            url = _appConfig.ParametricaResult.CrearRDAHospitalizacionRes1888;
+                            url = _parametrica.CrearRDAHospitalizacionRes1888;
                             break;
 
                         case RdaType.Ambulatorio:
-                            url = _appConfig.ParametricaResult.CrearRDAConsultaExternaRes1888;
+                            url = _parametrica.CrearRDAConsultaExternaRes1888;
                             break;
                     }
 
@@ -98,25 +120,37 @@ namespace SophiaWindowsService.Infrastructure.Jobs
                         new HttpMethod(item.MetodoEnvio),
                         url,
                         JsonConvert.DeserializeObject(item.MensajeEnvio),
-                        new Dictionary<string, string>{
+                        new Dictionary<string, string>
                         {
-                            "Authorization",$"Bearer {token.Data.Access_token}"
-                        }}
+                            {
+                                "Authorization", $"Bearer {accessToken}"
+                            }
+                        }
                     );
 
                     UpdateAuditoria(item, requestResult);
                 }
                 catch (Exception ex)
                 {
-                    var errorMessage = string.IsNullOrWhiteSpace(ex.InnerException?.Message) ? ex.Message : ex.InnerException.Message;
-                    UpdateAuditoria(item, null, errorMessage);
+                    var errorMessage = string.IsNullOrWhiteSpace(ex.InnerException?.Message)
+                        ? ex.Message
+                        : ex.InnerException.Message;
+
+                    if (!isErrorToken)
+                        UpdateAuditoria(item, null, errorMessage);
+                    else
+                        InsertErrorToken(item, errorMessage);
+                }
+                finally
+                {
+                    Thread.Sleep(500);
                 }
             }
         }
 
-        private void UpdateAuditoria(AuditoriaResult item, object requestResult, string errorMessage = null)
+        private static void UpdateAuditoria(AuditoriaResult item, object requestResult, string errorMessage = null)
         {
-            var actulizarJob = new ActualizarAuditoriaJob(item.CadenaConexion);
+            var updateJob = new AuditoriaUpdateJob(item.CadenaConexion);
             var isError = !string.IsNullOrWhiteSpace(errorMessage);
 
             string response = null;
@@ -128,16 +162,41 @@ namespace SophiaWindowsService.Infrastructure.Jobs
                 bundleId = JsonConvert.DeserializeObject<AuditoriaResponse>(response).Data.BundleId;
             }
 
-            actulizarJob.SetParameters(new object[]
+            updateJob.SetParameters(new object[]
             {
                 item.Id,
                 isError ? AuditoriaStatus.Error : AuditoriaStatus.Success,
                 isError ? errorMessage : response,
-                ++item.Reintentos,
+                item.Reintentos + 1,
                 isError ? null : bundleId
             });
 
-            actulizarJob.Execute();
+            updateJob.Execute();
+        }
+
+        private static void InsertErrorToken(AuditoriaResult item, string errorMessage)
+        {
+            var insertJob = new AuditoriaInsertJob(item.CadenaConexion);
+
+            insertJob.SetParameters(new object[]
+            {
+                item.CodPreSgs,
+                item.CodSucur,
+                item.TipAdmision,
+                item.AnoAdm,
+                item.NumAdm,
+                0,
+                AuditoriaStatus.ErrorToken,
+                RdaType.Token,
+                0,
+                HttpMethod.Post.ToString(),
+                "{}",
+                errorMessage,
+                "The token could not be obtained",
+                string.Empty
+            });
+
+            insertJob.Execute();
         }
     }
 }

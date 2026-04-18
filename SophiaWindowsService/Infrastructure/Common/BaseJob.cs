@@ -19,12 +19,12 @@ namespace SophiaWindowsService.Infrastructure.Common
             _dbContext = dbContext;
         }
 
-        public async void Execute()
+        public void Execute()
         {
             try
             {
                 var result = PrepareQuery(GetSpName());
-                await ProcessResult(result);
+                ProcessResult(result).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
