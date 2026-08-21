@@ -116,19 +116,26 @@ namespace SophiaWindowsService.Infrastructure.Jobs
                             break;
                     }
 
-                    var requestResult = await _httpRequestService.SendAsync<object, object>(
-                        new HttpMethod(item.MetodoEnvio),
-                        url,
-                        JsonConvert.DeserializeObject(item.MensajeEnvio),
-                        new Dictionary<string, string>
-                        {
+                    try
+                    {
+                        var requestResult = await _httpRequestService.SendAsync<object, object>(
+                            new HttpMethod(item.MetodoEnvio),
+                            url,
+                            JsonConvert.DeserializeObject(item.MensajeEnvio),
+                            new Dictionary<string, string>
                             {
-                                "Authorization", $"Bearer {accessToken}"
+                                {
+                                    "Authorization", $"Bearer {accessToken}"
+                                }
                             }
-                        }
-                    );
+                        );
 
-                    UpdateAuditoria(item, requestResult);
+                        UpdateAuditoria(item, requestResult);
+                    }
+                    catch (Exception ex)
+                    {
+                        UpdateAuditoria(item, null, ex.InnerException.Message);
+                    }
                 }
                 catch (Exception ex)
                 {
