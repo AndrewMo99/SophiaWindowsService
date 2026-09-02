@@ -11,7 +11,7 @@ namespace SophiaWindowsService.Domain.Models
         public string CodPreSgs { get; set; }
 
         // col 2
-        public int CodSucur { get; set; }
+        public string CodSucur { get; set; }
 
         // col 3
         public string TipAdmision { get; set; }

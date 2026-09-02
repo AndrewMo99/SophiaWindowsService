@@ -38,7 +38,7 @@ namespace SophiaWindowsService.Infrastructure.Jobs
             {
                 Id = r.GetData<int>("id"),
                 CodPreSgs = r.GetData<string>("cod_pre_sgs"),
-                CodSucur = r.GetData<int>("cod_sucur"),
+                CodSucur = r.GetData<string>("cod_sucur"),
                 TipAdmision = r.GetData<string>("tip_admision"),
                 AnoAdm = r.GetData<int>("ano_adm"),
                 NumAdm = r.GetData<int>("num_adm"),
