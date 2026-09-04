@@ -15,7 +15,12 @@ namespace SophiaWindowsService.Infrastructure
     {
         public static void AddInfrastructure(this ContainerBuilder builder)
         {
+            ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            ServicePointManager.ServerCertificateValidationCallback = (senderX, certificate, chain, sslPolicyErrors) =>
+            {
+                return true;
+            };
 
             builder
                 .AddConfig()
