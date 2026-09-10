@@ -76,6 +76,11 @@ namespace SophiaWindowsService.Infrastructure.Jobs
                     }
                     else
                     {
+
+                        Dictionary<string, string> headers = new Dictionary<string, string>() {
+                            { "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" }
+                        };
+                        
                         var token = await _httpRequestService.SendAsync<TokenRequest, TokenResponse>(
                             HttpMethod.Post,
                             _parametrica.ObtenerTokenJWTRes1888,
@@ -83,7 +88,8 @@ namespace SophiaWindowsService.Infrastructure.Jobs
                             {
                                 client_id = item.ClientId,
                                 client_secret = item.SecretId
-                            }
+                            },
+                            headers
                         );
 
                         accessToken = token.Data.Access_token;
