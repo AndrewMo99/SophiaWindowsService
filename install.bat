@@ -1,1 +1,0 @@
-installutil .\SophiaWindowsService\bin\Debug\SophiaWindowsService.exe

@@ -340,3 +340,4 @@ ASALocalRun/
 .mfractor/
 /OSI.Migracion.NegocioCliente.Test/Clases/EgresoAdministrativo/ValidarDiagnosticoSexoEdadTest.cs
 /OSI.Migracion.Admisiones/OSI.Migracion.Admisiones_xpiy4f3l_wpftmp.csproj
+*.InstallLog

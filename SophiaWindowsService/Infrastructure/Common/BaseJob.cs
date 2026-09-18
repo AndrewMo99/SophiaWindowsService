@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using SophiaWindowsService.Application.Abstractions;
 using SophiaWindowsService.Application.Extensions;
 using SophiaWindowsService.Infrastructure.DataBase;
@@ -50,14 +51,24 @@ namespace SophiaWindowsService.Infrastructure.Common
 
         private List<T> ExecuteSp(string spName, SqlConnection connection)
         {
-            LogExtensions.WriteEventLog($"Executing SP: {spName}", EventLogEntryType.Information);
             var result = new List<T>();
 
             using (var cmd = new SqlCommand(spName, connection))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
+                var parameters = GetParameters();
 
-                foreach (var keyValuePair in GetParameters())
+                LogExtensions.WriteEventLog(
+                    string.Format(
+                        "Executing SP: {0}{1} Parameters: {2}",
+                        spName,
+                        Environment.NewLine,
+                        JsonConvert.SerializeObject(parameters)
+                    ),
+                    EventLogEntryType.Information
+                );
+
+                foreach (var keyValuePair in parameters)
                 {
                     var value = keyValuePair.Value ?? DBNull.Value;
 

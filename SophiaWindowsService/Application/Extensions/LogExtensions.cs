@@ -46,6 +46,8 @@ namespace SophiaWindowsService.Application.Extensions
                 ConfigExtensions.ServiceName,
                 message,
                 entryType);
+
+            string.Format("{0}: {1}", entryType.ToString(), message).WriteLog();
         }
     }
 }

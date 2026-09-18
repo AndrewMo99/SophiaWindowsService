@@ -37,8 +37,11 @@ namespace SophiaWindowsService.Infrastructure.Services
 
             if (serviceInterval <= 0) return;
 
-            _timer = new Timer();
-            _timer.Interval = serviceInterval * 60 * 1000;
+            #if DEBUG
+                _timer = new Timer((1 * (60 * 1000)) / 2);
+            #else
+                _timer = new Timer((serviceInterval * (60 * 1000)));
+            #endif
             _timer.Elapsed += OnTimerElapsed;
             _timer.AutoReset = true;
             _timer.Start();
